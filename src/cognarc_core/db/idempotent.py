@@ -1,6 +1,6 @@
 """冪等寫入：同一個 unique 鍵重複寫入時回傳原紀錄，不建立新紀錄（SPEC-01 §2.3；I-02～I-04）。
 
-冪等由 Postgres 的 unique 鍵保證，不靠應用層的記憶或 Redis（CLAUDE.md §3）。
+冪等由 Postgres 的 unique 鍵保證，不靠應用層的記憶或 Redis。
 在 READ COMMITTED 下，並行的同鍵寫入會在 unique 索引上等待先到者提交，再走 DO NOTHING，
 接著讀到先到者已提交的紀錄，所以每個呼叫端都拿到同一筆。
 

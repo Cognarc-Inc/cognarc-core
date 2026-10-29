@@ -11,14 +11,14 @@ from cognarc_core import schema
 admin = create_engine(
     "postgresql+psycopg://admin@127.0.0.1:5432/myapp"
 )  # 能建角色、schema 並 SET ROLE 成 owner
-schema.apply(admin, owner_role="myapp_owner", line_role="myapp_line", line="invest")
+schema.apply(admin, owner_role="myapp_owner", line_role="myapp_line", line="main")
 ```
 
 - `{{owner_role}}`：NOLOGIN，擁有 `core` schema 與所有物件。
-- `{{line_role}}`：NOLOGIN，一條產品線的權限集合。
+- `{{line_role}}`：NOLOGIN，一條應用線（line）的權限集合。line 是共用同一套政策與角色模型的一組租戶，例如 `main`、`trading`、`release`；只有一條時用 `main`。
 - `{{line}}`：線別代碼；`core.current_tenant_id()` 只對該線別的租戶角色回傳租戶。
 - 每個檔案各在一個交易內執行；已套用的檔案記在 `core.schema_applied`，重跑會略過。
-- 已發行的 SQL 檔不改寫；要改就新增檔案（oss 用 0xx，enterprise 用 1xx，internal 用 2xx）。
+- 已發行的 SQL 檔不改寫；要改就新增檔案（oss 用 0xx，enterprise 用 1xx，internal 用 2xx）。純註解修改（不動任何 DDL、`{{…}}` 樣板或 `-- tier:` 標頭）不算改寫，可以直接改；`core.schema_applied` 只記檔名，不記內容雜湊。
 
 ## 租戶與連線
 

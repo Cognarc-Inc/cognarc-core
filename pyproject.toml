@@ -1,18 +1,50 @@
 [project]
 name = "cognarc-core"
 version = "0.1.0"
-description = "Cognarc Core：決策紀錄契約與 Postgres 帳本原語（租戶隔離、冪等寫入、只增審計表）"
+description = "Decision-record contract and PostgreSQL ledger primitives: tenant isolation with forced row-level security, idempotent writes and append-only audit tables"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
+authors = [{ name = "Cognarc Inc." }]
 requires-python = ">=3.12,<3.14"
+keywords = [
+    "audit",
+    "audit-log",
+    "append-only",
+    "decision-records",
+    "governance",
+    "ledger",
+    "multi-tenant",
+    "postgresql",
+    "row-level-security",
+    "sqlalchemy",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "psycopg[binary]>=3.2",
     "sqlalchemy>=2.0.36",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Cognarc-Inc/cognarc-core"
+Repository = "https://github.com/Cognarc-Inc/cognarc-core"
+Issues = "https://github.com/Cognarc-Inc/cognarc-core/issues"
+Changelog = "https://github.com/Cognarc-Inc/cognarc-core/blob/main/CHANGELOG.md"
+Security = "https://github.com/Cognarc-Inc/cognarc-core/blob/main/SECURITY.md"
+
 [dependency-groups]
 dev = [
+    "pre-commit>=4.0",
     "pyright>=1.1.390",
     "pytest>=8.3",
     "ruff>=0.8",

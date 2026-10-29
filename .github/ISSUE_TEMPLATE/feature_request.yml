@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a change to the contract, the schema or the Python primitives.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to record, enforce or audit that is hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change you have in mind. For schema changes, remember released SQL files are never rewritten; describe the new file.
+    validations:
+      required: true
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Guarantees affected
+      description: Which of the documented guarantees (UTC, four time columns, append-only, row-level security, idempotency, no names) does this touch, and how does it preserve them?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

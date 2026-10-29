@@ -1,8 +1,8 @@
 -- tier: oss
 -- 角色與 schema（SPEC-01 §2.2；SPEC-07 §3）。叢集層級、可重跑。
 -- {{owner_role}}：NOLOGIN，擁有 core schema 與所有物件。
--- {{line_role}}：NOLOGIN，一條產品線的權限集合；每租戶角色繼承它（由產品的開通流程建立）。
--- 行程的登入角色由產品建立（NOINHERIT；連線後 SET ROLE 成租戶角色才有權限）。
+-- {{line_role}}：NOLOGIN，一條應用線（line）的權限集合；每租戶角色繼承它（由應用的開通流程建立）。
+-- 行程的登入角色由應用建立（NOINHERIT；連線後 SET ROLE 成租戶角色才有權限）。
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{{owner_role}}') THEN

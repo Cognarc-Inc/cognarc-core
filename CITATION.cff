@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use Cognarc Core in research or in a system you describe publicly, please cite it as below."
+type: software
+title: "Cognarc Core: a decision-record contract and PostgreSQL ledger primitives"
+abstract: >-
+  A decision-record contract plus PostgreSQL primitives (tenant isolation with forced row-level
+  security, idempotent writes and append-only audit tables) that make who decided what, when,
+  under which policy, and what happened next traceable and tamper-resistant by construction.
+authors:
+  - name: "Cognarc Inc."
+    website: "https://cognarc.ai"
+version: "0.1.0"
+date-released: "2026-10-29"
+license: Apache-2.0
+repository-code: "https://github.com/Cognarc-Inc/cognarc-core"
+url: "https://cognarc.ai"
+keywords:
+  - audit-log
+  - append-only
+  - decision-records
+  - governance
+  - multi-tenant
+  - postgresql
+  - row-level-security

@@ -1,4 +1,4 @@
-"""時鐘：一律回傳帶時區的 UTC 時間（CLAUDE.md §3）。測試注入可控時鐘。"""
+"""時鐘：一律回傳帶時區的 UTC 時間（契約：時間一律 UTC）。測試注入可控時鐘。"""
 
 from datetime import UTC, datetime, timedelta
 from typing import Protocol

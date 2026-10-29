@@ -1,6 +1,6 @@
-# Cognarc 決策紀錄契約
+# 決策紀錄契約
 
-> 本文是 Cognarc Core 的共用契約。產品線（投資線 Jarvis、軟體交付線 Praxon，或任何第三方系統）實作時對齊的是這裡的語意；程式可以共用（本套件），資料不共用。
+> 本文是 Cognarc Core 的共用契約，不綁任何領域或產品：任何會產生「決策、授權、行動或結果」的系統（交易作業、軟體發布、授信、臨床流程……）實作時對齊的是這裡的語意；程式可以共用（本套件），資料不共用。下表的兩欄領域實例只是說明，不是契約的一部分。
 
 ## 目的
 
@@ -8,7 +8,7 @@
 
 ## 共用鏈與物件
 
-| 環節 | 共用物件（Core） | 投資線特化（例） | 軟體交付特化（例） |
+| 環節 | 共用物件（Core） | 領域實例：交易作業 | 領域實例：軟體發布 |
 | --- | --- | --- | --- |
 | 證據 | EvidenceArtifact、Claim、SignalObservation | 行情快照、公開事件、策略輸出 | PR、CI、發布紀錄 |
 | 提案 | DecisionProposal | ExecutionIntent | ReleaseCandidate |
@@ -22,11 +22,11 @@
 
 「不交易」與「不發布」都是 DecisionRecord，不是沒有紀錄。
 
-本套件目前以 DDL 落實的物件：Policy、DecisionRecord、OutcomeObservation（oss）；Principal、RoleGrant、Delegation、AccessLog、AuditChain（enterprise）。Authorization、Proposal、Evidence 等物件的欄位在各產品線差異大，本層只定語意，由產品線建表。
+本套件目前以 DDL 落實的物件：Policy、DecisionRecord、OutcomeObservation（oss）；Principal、RoleGrant、Delegation、AccessLog、AuditChain（enterprise）。Authorization、Proposal、Evidence 等物件的欄位在各領域差異大，本層只定語意，由採用本契約的系統自行建表。
 
 ## 每個物件的必填欄位
 
-- **識別**：`tenant_id`、`workspace_id`（投資線另有 portfolio_id、account_id、instrument_id）。
+- **識別**：`tenant_id`、`workspace_id`；各領域可再加自己的識別欄位（例如 portfolio_id、account_id、service_id）。
 - **時間**（四個分開，缺一不可，一律 UTC）：
   - `event_time`：事情發生。
   - `published_at`：對外公開。
@@ -44,9 +44,9 @@
 
 | 層 | 放什麼 | 不放什麼 |
 | --- | --- | --- |
-| 正式帳本（Postgres） | 觀測數值、決策、授權、委託、成交、持倉、帳務、政策版本 | 摘要、推論 |
+| 正式帳本（Postgres） | 觀測數值、決策、授權、行動與其結果（例如委託與成交、部署與事故）、帳務、政策版本 | 摘要、推論 |
 | Hot Track（近期記憶） | 近期脈絡、偏好、非權威檢索 | 任何會被當成事實的數字 |
-| Cold Track（跨文件關係） | 跨文件關係、歷史主張 | 帳務、持倉、授權 |
+| Cold Track（跨文件關係） | 跨文件關係、歷史主張 | 帳務、部位、授權 |
 
 摘要不覆寫帳本；記憶命中不等於事實已驗證；研究重跑不得觸發行動。
 
@@ -59,13 +59,13 @@
 
 ## 互斥（治理層最小集合）
 
-- 建單者 ≠ 核准者；授權者 ≠ 策略管理者；結案者 ≠ 建單者。
+- 建立者 ≠ 核准者；授權者 ≠ 政策管理者；結案者 ≠ 建立者。
 - 以 `natural_person_ref`（自然人）判定，不以帳號判定；代理期間，代理人與原持有人視為同一人。
 - 在 API、服務層、DB trigger 三層各自執行。enterprise 層的 `identity.py` 與 `110_identity.sql` 實作其中的角色授予、代理與角色組合規則。
 
 ## 機器可讀版本
 
-`contracts/decision_record.schema.json` 是 DecisionRecord 的 JSON Schema（v1）。其他物件的 schema 隨產品線需要補上，`$id` 一律用 `urn:cognarc:core:contracts:<object>:v<n>`。
+`contracts/decision_record.schema.json` 是 DecisionRecord 的 JSON Schema（v1）。其他物件的 schema 隨採用者的需要補上，`$id` 一律用 `urn:cognarc:core:contracts:<object>:v<n>`。
 
 ## 新功能的檢查表
 

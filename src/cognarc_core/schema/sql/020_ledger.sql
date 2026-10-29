@@ -2,7 +2,7 @@
 -- 決策紀錄契約的帳本物件（SPEC-01 §4）：Policy、DecisionRecord、OutcomeObservation。
 -- 共通欄位：四個時間分開（event_time、published_at、available_at、ingested_at）、有效期、版本、來源、機密等級。
 -- 權限：只授 SELECT、INSERT；一律不授 UPDATE、DELETE（更正另留一筆）。
--- Authorization 的欄位在各產品線差異大（投資線有額度與交易日），本層只定義語意（docs/CONTRACT.md），不建表。
+-- Authorization 的欄位在各領域差異大（例如交易作業有額度與交易日），本層只定義語意（docs/CONTRACT.md），不建表。
 SET LOCAL ROLE {{owner_role}};
 
 CREATE TABLE core.policy (

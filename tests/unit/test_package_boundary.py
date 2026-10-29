@@ -1,15 +1,18 @@
-"""套件內的 import 閉包：每個 `cognarc_core.*` 的 import 都要在目前安裝的套件裡找得到，而且 Core 不得 import 產品線。
+"""套件內的 import 閉包：每個 `cognarc_core.*` 的 import 都要在目前安裝的套件裡找得到，
+而且 Core 只依賴標準函式庫與 pyproject 宣告的套件（SQLAlchemy、psycopg），不 import 任何下游應用。
 
 匯出較低層級時較高層級的模組不存在；這個測試在每一層的匯出樹都要過。
 """
 
 import ast
+import sys
 from pathlib import Path
 
 import cognarc_core
 
 PACKAGE_DIR = Path(cognarc_core.__file__).resolve().parent
-PRODUCT_PACKAGES = {"jarvis", "jarvis_app", "jarvis_bridge", "praxon", "cognarc_foundry", "cognarc_praxon"}
+# pyproject.toml 的 dependencies；Core 的依賴方向是單向的，這裡以外的第三方套件一律不得 import。
+DECLARED_DEPENDENCIES = {"sqlalchemy", "psycopg"}
 
 
 def _modules() -> set[str]:
@@ -40,10 +43,12 @@ def test_internal_imports_resolve_within_installed_tier() -> None:
                 assert name in modules, f"{path.relative_to(PACKAGE_DIR)} import 了不存在的 {name}"
 
 
-def test_core_never_imports_product_lines() -> None:
+def test_core_imports_only_stdlib_and_declared_dependencies() -> None:
+    allowed = set(sys.stdlib_module_names) | DECLARED_DEPENDENCIES | {"cognarc_core"}
     for path in PACKAGE_DIR.rglob("*.py"):
         top = {name.split(".")[0] for name in _imports(path)}
-        assert not (top & PRODUCT_PACKAGES), f"{path.relative_to(PACKAGE_DIR)} import 了產品線套件"
+        extra = top - allowed
+        assert not extra, f"{path.relative_to(PACKAGE_DIR)} import 了未宣告的套件：{sorted(extra)}"
 
 
 def test_tier_marker_matches_available_modules() -> None:

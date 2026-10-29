@@ -1,6 +1,6 @@
 """Cognarc Core：決策紀錄、授權、結果、身分與審計的共用層。
 
-產品線（Jarvis、Praxon）建在這一層之上；本套件不得 import 任何產品線套件。
+本套件不綁任何領域或產品：下游應用建在這一層之上，而它只依賴標準函式庫、SQLAlchemy 與 psycopg，不 import 任何下游套件。
 三個發行層級（oss、enterprise、internal）共用同一個 import 路徑 `cognarc_core`，
 以 `cognarc_core.tier()` 查詢目前安裝的是哪一層；同一個環境永遠只能安裝其中一個 distribution。
 

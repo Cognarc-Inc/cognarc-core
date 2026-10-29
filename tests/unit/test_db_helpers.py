@@ -7,7 +7,7 @@ from cognarc_core.db.engine import RoleNameError, make_engine, validate_role_nam
 from cognarc_core.db.idempotent import insert_idempotent
 
 
-@pytest.mark.parametrize("role", ["jarvis_t_dev_invest", "a", "x" * 63, "role_1"])
+@pytest.mark.parametrize("role", ["myapp_t_acme_main", "a", "x" * 63, "role_1"])
 def test_valid_role_names(role: str) -> None:
     assert validate_role_name(role) == role
 

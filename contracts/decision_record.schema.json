@@ -20,7 +20,7 @@
     },
     "actor": { "type": "string", "format": "uuid", "description": "principal_id；存身分代碼，不存姓名" },
     "role": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$", "description": "actor 行使決策時所用的角色" },
-    "decision": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$", "description": "決策種類，由產品線定義，例如 approve、reject、no_trade、grant_role、release、defer、rollback" },
+    "decision": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$", "description": "決策種類，由採用者定義，例如 approve、reject、no_trade、grant_role、release、defer、rollback" },
     "policy_version": { "type": ["string", "null"], "description": "做出決策時生效的 Policy 版本" },
     "inputs_refs": {
       "type": "array",

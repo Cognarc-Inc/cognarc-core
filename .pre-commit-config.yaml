@@ -1,0 +1,15 @@
+# Runs the project's own ruff (from uv) so the hook and `make lint` can never disagree on a version.
+# Install once per clone: uv run pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi, markdown]
