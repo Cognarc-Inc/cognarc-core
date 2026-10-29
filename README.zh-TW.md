@@ -13,7 +13,7 @@
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/types-pyright%20strict-0B0C10?style=for-the-badge&labelColor=gray" alt="以 pyright strict 做型別檢查"></a>
 </p>
 
-[官網](https://cognarc.ai) · [契約](docs/CONTRACT.md) · [Schema](docs/SCHEMA.md) · [變更紀錄](CHANGELOG.md) · [English](README.md)
+[官網](https://cognarc.ai) · [架構](docs/ARCHITECTURE.md) · [契約](docs/CONTRACT.md) · [Schema](docs/SCHEMA.md) · [變更紀錄](CHANGELOG.md) · [English](README.md)
 
 </div>
 
@@ -27,11 +27,11 @@
 $ uv run python examples/quickstart.py
 applied: ['000_bootstrap.sql', '010_tenancy.sql', '020_ledger.sql', '030_audit_log.sql']
 re-apply: []                                   # 冪等：沒有剩下要套用的檔案
-decision_id: c77fd883-8978-4be5-bdaa-9238e62c0012
+decision_id: 658d3000-78e8-47f8-b272-34f1868877bc
 acme sees: 1                                   # 寫入它的那個租戶
-audit rows: [('decision_recorded', 'decision:c77fd883-8978-4be5-bdaa-9238e62c0012')]
+audit rows: [('decision_recorded', 'decision:658d3000-78e8-47f8-b272-34f1868877bc')]
 globex sees: 0                                 # 另一個租戶：同一張表、同一個資料庫
-owner UPDATE rejected: core.audit_log 只允許 INSERT（拒絕 UPDATE）   # 連 schema owner 也被拒絕
+admin UPDATE rejected: core.audit_log 只允許 INSERT（拒絕 UPDATE）   # superuser 會略過 row-level security，trigger 仍然拒絕
 tenant UPDATE rejected: permission denied for table audit_log
 ```
 
@@ -62,7 +62,7 @@ Cognarc Inc. 負責維護，並在自家產品的正式環境中使用。
 | 保證 | 如何執行 |
 | --- | --- |
 | 每一列只屬於一個租戶，而且只有該租戶能讀寫 | 每張租戶資料表都 `FORCE ROW LEVEL SECURITY`，條件為 `tenant_id = core.current_tenant_id()`；租戶由連線的 `SET ROLE` 推得，沒有綁定租戶的角色什麼都看不到 |
-| 決策與審計紀錄永不修改或刪除 | 角色只拿到 `SELECT` 與 `INSERT`，trigger 拒絕 `UPDATE`、`DELETE`、`TRUNCATE`，對 owner 與 superuser 也一樣；更正另留一筆 |
+| 決策與審計紀錄永不修改或刪除 | 角色只拿到 `SELECT` 與 `INSERT`，trigger 拒絕 `UPDATE`、`DELETE`、`TRUNCATE`，對 superuser 也一樣；更正另留一筆。持有 owner 角色或 superuser 的人可以先停用 trigger：見[信任邊界](docs/ARCHITECTURE.md#trust-boundaries) |
 | 同一件事寫兩次只會有一列 | `insert_idempotent` 以資料表的 unique 鍵判定，衝突時回傳既有那一列 |
 | 時間沒有歧義 | 所有時間戳記都是帶時區的 UTC；四個欄位分開：`event_time`、`published_at`、`available_at`、`ingested_at` |
 | 人以代碼參照，不存姓名 | `actor`、`created_by`、`approved_by` 存 principal id；姓名永遠不進帳本 |
@@ -189,6 +189,9 @@ flowchart LR
 PostgreSQL 負責：row-level security 把每次讀寫限制在該租戶，權限只允許 `SELECT` 與 `INSERT`，
 trigger 拒絕修改任何已寫入的內容。Python 層刻意保持很薄；保證不依賴它。
 
+完整設計（資料模型、角色模型、寫入路徑、信任邊界，以及如何讓你自己的資料表具備同樣的保證）見
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)（英文）。
+
 ## 契約
 
 任何會產生決策、授權、行動或結果的功能，都必須說明它位在這條鏈的哪一段、寫進哪個物件：
@@ -272,9 +275,10 @@ CI 在每次 push 與 pull request 跑 lint、Python 3.12 與 3.13 的單元測�
 
 - [`docs/CONTRACT.md`](docs/CONTRACT.md)：決策紀錄契約。
 - [`docs/SCHEMA.md`](docs/SCHEMA.md)：schema、角色模型、租戶開通、升級規則。
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)：如何建構、每個保證在哪一層執行、保證的邊界在哪裡（英文）。
 - [`CHANGELOG.md`](CHANGELOG.md)：每個版本的變更。
 
-`docs/` 下的兩份文件與程式 docstring 目前以繁體中文撰寫；README、貢獻指南與安全政策以英文為主。
+`docs/CONTRACT.md`、`docs/SCHEMA.md` 與程式 docstring 目前以繁體中文撰寫；README、架構文件、貢獻指南與安全政策以英文為主。
 docstring 中的 `SPEC-01 §4`、`I-17` 等識別碼是 Cognarc 內部規格的編號，保留作追溯用。
 
 ## 版本

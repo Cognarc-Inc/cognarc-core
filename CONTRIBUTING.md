@@ -39,7 +39,8 @@ instance where you can create roles and databases to run the integration tests e
 
 ## Rules every change must respect
 
-These rules are enforced by tests where possible. A change that breaks one of them will not be merged.
+Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before changing code: it explains where each
+guarantee is enforced, which is what these rules protect. They are enforced by tests where possible. A change that breaks one of them will not be merged.
 
 - **The schema has exactly one source: `src/cognarc_core/schema/sql/*.sql`.** Python reflects
   tables at runtime and never redefines them.
@@ -56,6 +57,8 @@ These rules are enforced by tests where possible. A change that breaks one of th
 - **No recommendation, scoring or auto-approval features.** Cognarc Core records decisions made
   by accountable actors; it does not make them.
 - **No product-specific code.** The package must not import or encode any downstream product.
+- **Document the design.** A new module or SQL file is described in `docs/ARCHITECTURE.md`;
+  `tests/unit/test_architecture_doc.py` fails otherwise.
 
 ## Code style
 

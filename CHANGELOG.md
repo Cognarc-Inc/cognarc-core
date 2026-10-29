@@ -23,6 +23,10 @@ may contain breaking changes; they are called out explicitly below.
   with a coding agent, a Traditional Chinese translation (`README.zh-TW.md`) and `CITATION.cff`.
 - `tests/unit/test_release_metadata.py`: the package version, `pyproject.toml`, `CITATION.cff` and
   this changelog must agree.
+- `docs/ARCHITECTURE.md`: design principles, code map, data model, role model, write path,
+  idempotency, schema lifecycle, trust boundaries, failure behaviour, a verified pattern for adding
+  your own tables, and non-goals. `tests/unit/test_architecture_doc.py` fails if a module or SQL
+  file is not described.
 
 ### Changed
 
@@ -30,6 +34,9 @@ may contain breaking changes; they are called out explicitly below.
   product lines; domain examples are labelled as examples. The package-boundary test now enforces
   a neutral rule (standard library plus declared dependencies only) instead of a list of product
   package names.
+- The README's quick-start output now labels the admin connection correctly: it is a superuser that
+  bypasses row-level security, not the owner role. The append-only guarantee now states that the
+  owner role or a superuser can disable triggers first.
 
 ## [0.1.0] - 2026-10-29
 

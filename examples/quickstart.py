@@ -100,8 +100,9 @@ def main() -> int:
     with globex.connect() as conn:
         print("globex sees:", conn.execute(text("SELECT count(*) FROM core.decision_record")).scalar_one())
 
-    # Append-only: neither the schema owner nor a tenant can change what was written.
-    for label, engine in (("owner", admin), ("tenant", acme)):
+    # Append-only: neither the admin connection (which bypasses row-level security when it is a
+    # superuser) nor a tenant can change what was written.
+    for label, engine in (("admin", admin), ("tenant", acme)):
         try:
             with engine.begin() as conn:
                 conn.execute(text("UPDATE core.audit_log SET action = 'tampered'"))

@@ -13,7 +13,7 @@
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/types-pyright%20strict-0B0C10?style=for-the-badge&labelColor=gray" alt="Type-checked with pyright strict"></a>
 </p>
 
-[Website](https://cognarc.ai) · [Contract](docs/CONTRACT.md) · [Schema](docs/SCHEMA.md) · [Changelog](CHANGELOG.md) · [繁體中文](README.zh-TW.md)
+[Website](https://cognarc.ai) · [Architecture](docs/ARCHITECTURE.md) · [Contract](docs/CONTRACT.md) · [Schema](docs/SCHEMA.md) · [Changelog](CHANGELOG.md) · [繁體中文](README.zh-TW.md)
 
 </div>
 
@@ -25,11 +25,11 @@
 $ uv run python examples/quickstart.py
 applied: ['000_bootstrap.sql', '010_tenancy.sql', '020_ledger.sql', '030_audit_log.sql']
 re-apply: []                                   # idempotent: nothing left to apply
-decision_id: c77fd883-8978-4be5-bdaa-9238e62c0012
+decision_id: 658d3000-78e8-47f8-b272-34f1868877bc
 acme sees: 1                                   # the tenant that wrote it
-audit rows: [('decision_recorded', 'decision:c77fd883-8978-4be5-bdaa-9238e62c0012')]
+audit rows: [('decision_recorded', 'decision:658d3000-78e8-47f8-b272-34f1868877bc')]
 globex sees: 0                                 # another tenant, same table, same database
-owner UPDATE rejected: core.audit_log 只允許 INSERT（拒絕 UPDATE）   # "INSERT only (UPDATE rejected)", even for the schema owner
+admin UPDATE rejected: core.audit_log 只允許 INSERT（拒絕 UPDATE）   # "INSERT only (UPDATE rejected)": a superuser bypasses row-level security, the trigger still refuses
 tenant UPDATE rejected: permission denied for table audit_log
 ```
 
@@ -66,7 +66,7 @@ maintains it and runs it in production under its own products.
 | Guarantee | How it is enforced |
 | --- | --- |
 | A row belongs to exactly one tenant and only that tenant can read or write it | Every tenant table has `FORCE ROW LEVEL SECURITY` with `tenant_id = core.current_tenant_id()`; the tenant is derived from the connection's `SET ROLE`, and a role bound to no tenant sees nothing |
-| Decisions and audit rows are never changed or deleted | Roles receive `SELECT` and `INSERT` only, and triggers reject `UPDATE`, `DELETE` and `TRUNCATE` even for the owner and superusers; corrections are new rows |
+| Decisions and audit rows are never changed or deleted | Roles receive `SELECT` and `INSERT` only, and triggers reject `UPDATE`, `DELETE` and `TRUNCATE` even for superusers; corrections are new rows. Someone holding the owner role or a superuser can disable those triggers first: see [Trust boundaries](docs/ARCHITECTURE.md#trust-boundaries) |
 | Writing the same thing twice yields one row | `insert_idempotent` uses the table's unique key and returns the existing row on conflict |
 | Time is unambiguous | All timestamps are timezone-aware UTC; four columns stay separate: `event_time`, `published_at`, `available_at`, `ingested_at` |
 | People are referenced, not named | `actor`, `created_by`, `approved_by` hold principal ids; names never enter the ledger |
@@ -201,6 +201,9 @@ filters every read and write to that tenant, grants allow only `SELECT` and `INS
 triggers refuse changes to anything already written. The Python layer is thin on purpose; the
 guarantees do not depend on it.
 
+The full design, with the data model, the role model, the write path, trust boundaries and how
+to add your own tables with the same guarantees, is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
 ## The contract
 
 Every feature that produces a decision, an authorization, an action or an outcome has to say
@@ -288,10 +291,11 @@ on every push and pull request; see [`.github/workflows/ci.yml`](.github/workflo
 
 - [`docs/CONTRACT.md`](docs/CONTRACT.md): the decision-record contract.
 - [`docs/SCHEMA.md`](docs/SCHEMA.md): schema, role model, tenant provisioning, upgrade rules.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): how it is built, where each guarantee is enforced, and where it stops.
 - [`CHANGELOG.md`](CHANGELOG.md): what changed in each version.
 
-The two documents under `docs/` and the code docstrings are currently written in Traditional
-Chinese; this README, the contributing guide and the security policy are in English, and
+`docs/CONTRACT.md`, `docs/SCHEMA.md` and the code docstrings are currently written in Traditional
+Chinese; this README, the architecture document, the contributing guide and the security policy are in English, and
 [`README.zh-TW.md`](README.zh-TW.md) is a Traditional Chinese translation of this page. English
 translations of the documents are a welcome contribution (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 Identifiers such as `SPEC-01 §4` or `I-17` in docstrings refer to Cognarc's internal
