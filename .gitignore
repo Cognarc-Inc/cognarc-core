@@ -1,0 +1,21 @@
+# --- 匯出產物與機密 ---
+dist/
+.env*
+!.env.example
+secrets/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.pyright/
+*.egg-info/
+build/
+
+# --- 臨時 Postgres（scripts/dev_pg.sh）---
+.pgdata/
+
+# --- 系統 ---
+.DS_Store

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cognarc:core:contracts:decision_record:v1",
+  "title": "DecisionRecord",
+  "description": "Cognarc Core 決策紀錄契約 v1：一筆由人（或登錄過的服務帳號）做出的決策。只追加，不改寫；更正另留一筆。「不交易」「不發布」也是一筆決策。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id", "tenant_id", "workspace_id", "subject_ref", "actor", "role", "decision", "decided_at",
+    "event_time", "available_at", "ingested_at", "inputs_refs", "confidentiality"
+  ],
+  "properties": {
+    "decision_id": { "type": "string", "format": "uuid" },
+    "tenant_id": { "type": "string", "format": "uuid" },
+    "workspace_id": { "type": "string", "format": "uuid" },
+    "subject_ref": {
+      "type": "string",
+      "description": "決策對象的帳本參照，形式為 <object_type>:<id>，例如 intent:…、release_candidate:…、role_grant:…",
+      "pattern": "^[a-z][a-z0-9_]*:.+$"
+    },
+    "actor": { "type": "string", "format": "uuid", "description": "principal_id；存身分代碼，不存姓名" },
+    "role": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$", "description": "actor 行使決策時所用的角色" },
+    "decision": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$", "description": "決策種類，由產品線定義，例如 approve、reject、no_trade、grant_role、release、defer、rollback" },
+    "policy_version": { "type": ["string", "null"], "description": "做出決策時生效的 Policy 版本" },
+    "inputs_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "決策依據的帳本參照（證據、提案、評估、授權）；一筆行動要能沿 inputs_refs 回溯到證據"
+    },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "event_time": { "type": "string", "format": "date-time", "description": "事情發生：決策發生即可用，event_time＝available_at＝decided_at" },
+    "published_at": { "type": ["string", "null"], "format": "date-time", "description": "對外公開；決策通常不公開，為 null" },
+    "available_at": { "type": "string", "format": "date-time", "description": "我們能用" },
+    "ingested_at": { "type": "string", "format": "date-time", "description": "進系統（寫入時刻）" },
+    "valid_from": { "type": ["string", "null"], "format": "date-time" },
+    "valid_to": { "type": ["string", "null"], "format": "date-time" },
+    "source_version": { "type": ["string", "null"] },
+    "lineage": { "type": "object" },
+    "confidentiality": { "type": "string", "enum": ["public", "internal", "restricted"] }
+  }
+}
